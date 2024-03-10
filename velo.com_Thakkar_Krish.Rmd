@@ -1,0 +1,109 @@
+---
+title: "Velo.com"
+author: "Krish Thakkar"
+date: "12 October 2023 "
+output: 
+  html_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = F, warning = F)
+
+library(tidyverse)
+library(ggplot2)
+
+velo <- read.csv("velo.csv")
+```
+## Q1
+
+```{r}
+ggplot(velo, aes(x = spent))+
+  geom_histogram() +
+  theme_minimal() +
+  facet_wrap(~checkout_system, ncol = 1)+
+  labs(title = "distribution of spent by checkout_system")
+
+ggplot(velo, aes(x = checkout_system, y = spent))+
+  geom_boxplot() +
+  theme_minimal() +
+  labs(title = "distribution of spent by checkout_system")
+
+ggplot(velo, aes(x = spent, col = checkout_system))+
+  geom_density() +
+  theme_minimal() +
+  labs(title = "distribution of spent by checkout_system")
+```
+
+
+## Q2
+
+```{r}
+velo %>% 
+  group_by(checkout_system) %>% 
+  summarize(n = n(),
+            mean = mean(spent),
+            sd = sd(spent),
+            median = median(spent),
+            total = sum(spent),
+            lowerCI = (mean - 2 * sd/sqrt(n)) %>%  round(2), 
+            upperCI = (mean + 2 * sd/sqrt(n))  %>%  round(2))
+
+```
+
+
+## Q3
+
+```{r}
+t.test(x = filter(velo, checkout_system == 'new')$spent,
+       y = filter(velo, checkout_system == 'old')$spent)
+```
+
+
+## Q4
+
+```{r}
+velo %>% 
+  group_by(checkout_system, device) %>% 
+  summarize(n = n(),
+            mean = mean(spent),
+            sd = sd(spent),
+            median = median(spent),
+            se = sd/sqrt(n),
+            lowerCI = (mean - 2 * se) %>%  round(2), 
+            upperCI = (mean + 2 * se)  %>%  round(2))
+velo<-velo%>%
+  filter(device=="mobile")
+
+t.test(x = filter(velo, checkout_system == 'new')$spent,
+       y = filter(velo, checkout_system == 'old')$spent)
+  
+```
+
+
+## Q5
+
+```{r}
+
+```
+
+
+
+
+The Welch Two Sample t-test is a statistical test used to determine if there is a significant difference between the means of two independent groups, even if the variances of these groups are not necessarily equal. The test compares the means of two groups and checks if the observed difference is statistically significant. Here's an interpretation of the results you provided:
+
+Data: You have two groups, "new" and "old," which are subsets of a dataset called "velo." The t-test is applied to the "spent" variable in these two groups.
+
+t-statistic (t): The t-statistic is 1.4272. This value measures the difference between the means of the two groups relative to the variation within the groups. A higher t-value suggests a larger difference between the means.
+
+Degrees of Freedom (df): The degrees of freedom for this test are approximately 3464.4. The degrees of freedom are a measure of the variability in your data.
+
+p-value: The p-value is 0.1536. This is the probability of observing a t-statistic as extreme as the one calculated if there were no true difference between the means of the "new" and "old" groups. In this case, a p-value of 0.1536 suggests that there is not strong evidence to reject the null hypothesis.
+
+Alternative Hypothesis: The alternative hypothesis states that the true difference in means is not equal to 0. In other words, you are testing whether there is a significant difference between the "new" and "old" groups.
+
+95 Percent Confidence Interval: The confidence interval provides a range of values within which you can be reasonably confident that the true difference in means lies. In this case, the 95% confidence interval is -23.45215 to 148.93475. This interval contains 0, which is consistent with the p-value, indicating that the difference in means is not statistically significant.
+
+Sample Estimates: The means of the "new" and "old" groups are provided as sample estimates. The mean of the "new" group is 2279.890, and the mean of the "old" group is 2217.148.
+
+In summary, based on the results and the given p-value (0.1536) and confidence interval, there is not strong evidence to conclude that there is a significant difference between the means of the "new" and "old" groups. The difference observed may be due to random variation, and the null hypothesis that the means are equal cannot be rejected at the 0.05 significance level.

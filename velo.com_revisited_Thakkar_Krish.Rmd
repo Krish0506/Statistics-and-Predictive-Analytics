@@ -1,0 +1,96 @@
+---
+title: "Velo Revisited"
+author: "Krish Thakkar"
+date: "October 21st 2023"
+output:
+  html_document:
+    toc: yes
+  pdf_document:
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = F, warning = F)
+
+library(tidyverse)
+library(ggplot2)
+V <- read.csv("velo.csv")
+
+```
+## Q1
+
+```{r}
+
+#Data Preparation
+velo <- V %>% 
+  mutate(checkout_system = factor(checkout_system, 
+                                  levels = c("old", "new"))) 
+
+#Model
+model <- lm(spent ~ checkout_system, data = velo)
+
+#Summary for the model
+summary(model)
+```
+>1.The average spending for customers using the following checkout system is listed below:
+Old System:2217.15
+New System:62.74 + 2217.15 = 2279.89
+
+>2. The average difference for customer between new and old is: 62.74. The difference between the two system is not statistically significant as the P value is greater than 0.05 which is: 0.1542.
+
+>3. The value for mean for the new checkout system is 2279.89 where as the T value and P value output is 1.4272 and 0.154 respectively which is comparatively same as linear regression value. 
+
+## Q2
+
+```{r}
+#Model
+model1 <- lm(spent ~ checkout_system, data = filter(velo,device=="mobile"))
+
+#Summary
+summary(model)
+```
+>1. The difference in mobile customer spending between new and old system is 148.08.
+
+>2. The difference between the two system is statistically significant as the P value is less than 0.05 which is: 0.017.
+
+>3.In comparison, t = 2.399 and p-value = 0.01655 for t value function where is similar to the linear regression.
+## Q3
+
+```{r}
+#Calculation for Upper
+Upper<- 148.08 + 61.98*2
+
+#Calculation for Upper
+Lower<- 148.08 - 61.98*2
+
+#Results
+Upper
+Lower
+```
+>The confidence interval for upper and lower is 272.04 and 24.12.The information signifies that the average spending for the checkout system has 95% confidence interval that the values lies in the confidence interval.
+
+
+## Q4
+
+```{r}
+
+#Calculation for Upper
+upperspending<-Upper*150
+
+#Calculation for Lower
+lowerspending<-Lower*150
+
+#Results
+upperspending
+lowerspending
+
+#Finding the Range
+range<- upperspending - lowerspending
+range
+```
+>Based on the 150 customer pool we can estimate the best case revenue to be as 40806 and the worst case revenue as 3618 for the new checkout system. The range for the new checkout system for the 150 customers is 37188.
+
+## Q5
+>I would recommend Sarah based on my analysis that they should implement the new checkout system on the mobile device as there isn't any significant difference in the mean of overall checkout system when compared with spent where as which filtering based on the device type being mobile we can observe a significant statistical difference.Based on the analysis that the team has run, we can interpret that the new checkout systme has a maximum revenue of 40806 for the sample set of 150 customers and the minimum revenue of 3618. The range value is 37188, which tells us the difference of revenue between minimum and maximum. Even the coefficient for the mobile device is 148 which is noticible difference. 
+
+

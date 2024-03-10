@@ -1,0 +1,86 @@
+---
+title: "Flight Delay case "
+author: "Krish Thakkar "
+date: "09-29-2023"
+output: 
+  html_document:
+    toc: true
+---
+
+```{r}
+fd <- read.csv("flight_delay_clean.csv")
+str(fd)
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+```
+
+Lightly comment your code and use pipes for readability.
+
+Comment briefly on each of the questions, as directed.  Only the the final question requires a lengthier response.
+
+## Q1
+Compute the mean, median, 90th percentile, and standard deviation of arrival delay minutes for RegionEx flights. Do the same for MDA flights.Contractual obligations aside, which measure of central tendency would be most appropriate for comparing airline performance?
+```{r}
+##Arrival delay Minutes
+fd %>% 
+  group_by(airline) %>% 
+  summarize(avg = mean(delay),
+            n(),
+            median(delay),
+            sd(delay),
+            perc_10 = quantile(delay, probs = .1),
+            perc_90 = quantile(delay, probs = .9))
+
+```
+
+In my opinion the median would be the most appropriate measure of central tendency in terms of comparing the airline performance and the reason is because it is a measure that is less affected by the extreme outliers with respect to the airline delays. Median also gives us a sense of typical delay a passenger could experience with no influence of extreme delay values. 
+
+## Q2
+Inspect the distribution of RegionEx’s arrival delays by constructing a histogram of the number of arrival delay minutes of RegionEx’s flights. Do the same for MDA’s flights. Hint: use facet_wrap().How do these two distributions compare?
+```{r}
+ggplot(fd, aes(x = delay)) +
+  geom_histogram()+
+  facet_wrap(~airline)
+```
+
+Based on the output given by the Facet_wrap function we can conclude that RegionEx and MDA both has significantly high amount of delay minutes. In case of MDA airline the delay minutes ranges from 0-32 minutes where in terms of RegionEx the delay minutes has a floor of 0 minutes to a ceiling of 148 minutes. This graph gives us a clear understand of delayed minutes for both the flights and also helps us differentiate. 
+## Q3
+
+```{r}
+##Sample
+fd %>% 
+  group_by(airline) %>% 
+  summarize(n = n(),
+            percent_delay = (mean(delay_indicator) * 100) %>% round(1))
+
+
+##Response
+fd %>% 
+  group_by(route_code, airline) %>% 
+  summarize(n = n(),
+            percent_delay = (mean(delay_indicator == 1) * 100) %>% round(1))
+
+```
+
+Based on the above the table we can see MDA has a total of 120 flights  where as RegionEx has a total of 240 flights. Based on the observation we can see that the route MSY/DFW has a higher percentage of delay which is of 30 % for MDA and 28.9 % of RegionEX. Besides MSY/DFW route being the highes percentage of delay the next route is PNS/MSY with a high percentage of delay, being 26.7 % respectively for MDA and RegionEx. 
+
+## Q4
+Compare the scheduled flight durations for the two airlines on each of their four routes. Also compare the actual flight durations for the two airlines. What do you notice? If the two airlines had the same scheduled duration, what impact would this have on their delay records?
+```{r}
+fd %>%
+  group_by(route_code, airline) %>%
+  summarise(Scheduled = mean(scheduled_flight_length),
+            Actual= mean(actual_flight_length),
+            delay_record = mean(delay)) 
+```
+
+Based on my observation, in most of the cases, the schedule flight duration for MDA and RegionEx are pretty similar, with MDA being 75-100 minutes and RegionEX being 70-90 minutes. The above table says that the route DFW/MSY and MSY/DFW has the most amount of delay for both MDA and RegionEx. Even though the Scheduled flight time for both the airlines is comparatively close, RegionEx has more of a delay time than MDA. 
+## Q5
+Does the data support the claim that the on‐time performance of RegionEx is worse than that of MDA? Write a paragraph in which you argue a position. In your answer, please incorporate quantitative evidence from the earlier questions.
+```{r}
+ggplot(fd, aes(x = delay)) +
+  geom_histogram()+
+  facet_wrap(~airline)
+```
+Based on the limited data that is present to us we can interpretate that RegionEX does have a worse delay time than MDA. The observation gives us a understanding that RegionEx has an extreme delay variables such as 148 and 153 minutes delay where as MDA has delay of single and double digits. RegionEx having a higher delay numbers we can conclude the statement that in comparison MDA has done better. 
